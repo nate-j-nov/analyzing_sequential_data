@@ -30,15 +30,15 @@ def main():
     print(str(feature_extractor)) 
 
     print("Shapes to show different sizes in input data:"); 
-    print(str(dataset[0]["audio"]["array"].shape))
-    print(str(dataset[1]["audio"]["array"].shape))
+    print(f"0 Shape: {dataset[0][audio][array].shape}")
+    print(f"1 Shape: {dataset[1][audio][array].shape}")
 
     # Apply the preprocess_function tot he first few samples in the dataset
     preprocessed_data = preprocess(dataset[:5], feature_extractor)
     input_values = "input_values"
 
-    print(f"Preprocessed dataset FIRST: {preprocessed_data[input_values][0].shape}")
-    print(f"Preprocessed dataset SECOND: {preprocessed_data[input_values][1].shape}")
+    print(f"0 Reshaped: {preprocessed_data[input_values][0].shape}")
+    print(f"1 Reshaped: {preprocessed_data[input_values][1].shape}")
     return
 
 # create function to preprocess dataset so audio samples are same length
