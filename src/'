@@ -18,6 +18,11 @@ def main():
     tokenizer = BertTokenizer.from_pretrained("textattack/bert-base-uncased-yelp-polarity")
     model = BertForSequenceClassification.from_pretrained("textattack/bert-base-uncased-yelp-polarity")
     
+    inputs = tokenizer("hello my dog is cute", return_tensors="pt")
+
+    with torch.no_grad(): 
+        logits = model(**inputs).logits
+
     embeddings = model.get_input_embeddings()
     print(f"embeddings.shape: {embeddings}")
 

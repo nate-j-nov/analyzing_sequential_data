@@ -1,0 +1,13 @@
+##############################
+# Ideas for getting the data #
+##############################
+
+For model: 
+* Using a "feature-extractor" pipeline with a model to extract the features
+* Load a pretrained model, and sending it inputs and get the outputs.
+
+For Data: 
+* There are audio emotion datasets
+* once we get the high-dim vector from the encoder, we can write to a csv file
+* we can then load it as a dataset and dataloader or do whatever we want with it for the actual classification task we choose to do. 
+
