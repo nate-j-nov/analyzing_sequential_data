@@ -2,8 +2,8 @@
 # CS 7180: Advanced Computer Perception
 # Fall 2022
 # Program to extract the vector of audio sequence
-from transformers import pipeline
 
+#from transformers import pipeline
 import numpy as np
 from datasets import load_dataset, load_metric
 import pandas as pd
@@ -15,8 +15,8 @@ def main():
     rot_tom = load_dataset("rotten_tomatoes", split="train")
     print(f"rot_tom: {rot_tom}")
 
-    tokenizer = BertTokenizer.from_pretrained("textattack/bert-base-uncased-yelp-polarity")
-    model = BertForSequenceClassification.from_pretrained("textattack/bert-base-uncased-yelp-polarity")
+    tokenizer = BertTokenizer.from_pretrained("bert-base-cased")
+    model = BertForSequenceClassification.from_pretrained("bert-base-cased")
     
     embeddings = model.get_input_embeddings()
     print(f"embeddings.shape: {embeddings}")
@@ -25,9 +25,11 @@ def main():
     for i in range(len(rot_tom["text"])): 
         sentence = rot_tom["text"][i]
         label = rot_tom["label"][i]
-        input_ids = tokenizer(sentence, return_tensors="pt").input_ids
+        input_ids = tokenizer(sentence, return_tensors = "pt", padding = True, truncation = True).input_ids
         print(f"input_ids {input_ids}")
-        last_hidden_state = model.base_model.encoder(input_ids, return_dict=True).last_hidden_state
+        print(model.base_model.encoder)
+        last_hidden_state = model.base_model.encoder(input_ids, return_dict=True)
+        print(last_hidden_state)
         
         break
 
@@ -35,22 +37,25 @@ def main():
     ###################################
     # Below this is old stuff. Ignore #
     ###################################
-   # pd_data = pd.DataFrame(rot_tom)
-   # print(f"pd_data.head {pd_data.head()}")
-   # #print(f"np_label.shape: {np_label.shape}")
-
-   # pd_data[["model_out", "model_score"]] = pd.DataFrame([x for x in model(list(pd_data["text"]))])
-
-   # d = {'POSITIVE':1, 'NEGATIVE': 0}
-   # pd_data['model_out'] = pd_data['model_out'].map(d)
-
-   # grouped = pd_data.groupby(["label", "model_out"]).count()
-
-   # print(f"{grouped}")
-
-   # # See: https://huggingface.co/blog/fine-tune-wav2vec2-english
+    # pd_data = pd.DataFrame(rot_tom)
+    # print(f"pd_data.head {pd_data.head()}")
+    # #print(f"np_label.shape: {np_label.shape}")
+ 
+    # pd_data[["model_out", "model_score"]] = pd.DataFrame([x for x in model(list(pd_data["text"]))])
+ 
+    # d = {'POSITIVE':1, 'NEGATIVE': 0}
+    # pd_data['model_out'] = pd_data['model_out'].map(d)
+ 
+    # grouped = pd_data.groupby(["label", "model_out"]).count()
+ 
+    # print(f"{grouped}")
+ 
+    # # See: https://huggingface.co/blog/fine-tune-wav2vec2-english
 
     return
+
+if __name__ == "__main__": 
+    main()
 
 sentences = [ 
     "I quite happy, but mourning my mother's death", 
@@ -65,5 +70,3 @@ sentences = [
     "hahahahahahahahaha"
     ]
 
-if __name__ == "__main__": 
-    main()
