@@ -12,39 +12,39 @@ import pandas as pd
 from sklearn.decomposition import PCA
 
 def main(): 
-    rot_tom = load_dataset("rotten_tomatoes", split="train")
-    print(f"rot_tom: {rot_tom}")
 
-    model = pipeline('sentiment-analysis')
-    outputs = model(rot_tom["text"][:30])
-    print(outputs)
+    # load dataset
+    rt = load_dataset('csv', data_files='../data/train.csv', split='train')
+    print(rt)
+    print(f"rt[0]: {rt[0]}")
+
+#### Toy example of tokenizer/model split on handmade sentences
+    checkpoint = "distilbert-base-uncased-finetuned-sst-2-english"
+    tokenizer = AutoTokenizer.from_pretrained(checkpoint)
+
+    raw_inputs = [
+        "I feel like using HuggingFace is maybe too easy.",
+        "I also don't know what to use instead that will be feasible",
+        "NLP models are far too large to get good results without something pre-trained",
+        "Pizza is delicious!"
+    ]
+    inputs = tokenizer(raw_inputs, padding=True, truncation=True, return_tensors="pt")
+    print(inputs)
+
+    model = AutoModel.from_pretrained(checkpoint)
+    outputs = model(**inputs)
+    print(outputs.last_hidden_state.shape)
+
+
+#    outputs_np = outputs.last_hidden_state.detach().numpy()
+#    print(outputs_np)
+#    out_shape = outputs_np.shape
+#    print(out_shape)
+#    outputs_np = outputs_np.reshape(out_shape[0], out_shape[1]*out_shape[2])
+#    print(outputs_np.shape)
 
 
 
-##### Toy example of tokenizer/model split on handmade sentences
-#    checkpoint = "distilbert-base-uncased-finetuned-sst-2-english"
-#    
-#    tokenizer = AutoTokenizer.from_pretrained(checkpoint)
-#
-#    raw_inputs = [
-#        "I feel like using HuggingFace is maybe too easy.",
-#        "I also don't know what to use instead that will be feasible",
-#        "NLP models are far too large to get good results without something pre-trained",
-#        "Pizza is delicious!"
-#    ]
-#    inputs = tokenizer(raw_inputs, padding=True, truncation=True, return_tensors="pt")
-#    print(inputs)
-#
-#    model = AutoModel.from_pretrained(checkpoint)
-#    outputs = model(**inputs)
-#    print(outputs.last_hidden_state.shape)
-
-    outputs_np = outputs.last_hidden_state.detach().numpy()
-    print(outputs_np)
-    out_shape = outputs_np.shape
-    print(out_shape)
-    outputs_np = outputs_np.reshape(out_shape[0], out_shape[1]*out_shape[2])
-    print(outputs_np.shape)
 
 ##### Use pandas to checkout model output against ground truth
 #    pd_data = pd.DataFrame(rot_tom)
@@ -95,7 +95,6 @@ if __name__ == "__main__":
     main()
 
 
-
 #sentences = [ 
 #    "I quite happy, but mourning my mother's death", 
 #    "I'm so happy my brother died", 
@@ -109,3 +108,12 @@ if __name__ == "__main__":
 #    "hahahahahahahahaha"
 #    ]
 
+
+
+#    rot_tom = load_dataset("rotten_tomatoes", split="train")
+#    print(rot_tom.info)
+#    print(f"rot_tom: {rot_tom}")
+#    print(f"rot_tom[0]: {rot_tom[0]}")
+#    model = pipeline('sentiment-analysis')
+#    outputs = model(rot_tom["text"][:30])
+#    print(outputs)
