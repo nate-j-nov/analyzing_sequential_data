@@ -16,9 +16,16 @@ ext = 'csv'
 
 files = [i for i in glob.glob(f'*.{ext}')]
 
+files = []
+
+for thing in glob.glob(f"*.{ext}"): 
+    if "encoded" in thing: 
+        continue
+    files.append(thing)
+
 combined_csv = pd.concat([pd.read_csv(f) for f in files])
 
 # export to csv
-combined_csv.to_csv("../data/encoded.csv", index=False, encoding='utf-8-sig')
+combined_csv.to_csv("../data/encoded_nograd.csv", index=False, encoding='utf-8-sig')
 
 
