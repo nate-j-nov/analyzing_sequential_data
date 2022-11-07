@@ -27,7 +27,7 @@ def main():
     tokenizer = AutoTokenizer.from_pretrained(checkpoint)
     model = AutoModel.from_pretrained(checkpoint)
     for chunk in chunks: 
-        print(f"Running chunk {chunk}")
+        print(f"Running chunk {chunk}...")
         if chunk == 7000: 
             rt_small = list(rt_df['Phrase'])[chunk:]
         else: 
@@ -36,7 +36,7 @@ def main():
 
         with torch.no_grad():
             outputs = model(**inputs)
-        cls_out_np = outputs.last_hidden_state.detach().numpy()[:,0,:]
+            cls_out_np = outputs.last_hidden_state.detach().numpy()[:,0,:]
 
         encoded_df = pd.concat([rt_df[['PhraseId','SentenceId','Phrase','Sentiment']][chunk:chunk+1000].reset_index(drop=True), pd.DataFrame(cls_out_np)], axis=1)
         encoded_df.to_csv(f"../data/e_{chunk}_rt.csv")
