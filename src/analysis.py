@@ -4,6 +4,10 @@
 # Perform dimension reduction and clustering analyses on encoded sentence data 
 
 
+############
+# Not used #
+############
+
 import numpy as np
 import pandas as pd
 from sklearn.decomposition import PCA
@@ -11,6 +15,7 @@ from sklearn.decomposition import PCA
 def main():
 
     # load data
+    print("Loading data...")
     cls_out = pd.read_csv("../data/encoded.csv")
     print(cls_out)
     print(cls_out.columns)
