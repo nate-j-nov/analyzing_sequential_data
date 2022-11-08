@@ -35,6 +35,7 @@ def main():
     new  = rt_df.merge(new_col, on=['SentenceId'], how='left', suffixes=(None,'_r'))
     rt_df = new.drop(new[new.PhraseId != new.PhraseId_r].index)
     rt_df = rt_df.reset_index(drop=True)
+    rt_df['Sentiment'] = rt_df['Sentiment'].astype(int)
 
     rt_ds = Dataset.from_pandas(rt_df)
 
@@ -48,23 +49,23 @@ def main():
     print(tokenized_datasets)
 
     small_train_ds = tokenized_datasets["train"].shuffle(seed=42).select(range(1000))
-    small_eval_ds = tokenized_datasets["train"].shuffle(seed=42).select(range(1000))
+    small_eval_ds = tokenized_datasets["test"].shuffle(seed=42).select(range(1000))
 
-    #    inputs = tokenizer(rt_small, padding=True, truncation=True, return_tensors="pt")
-
+    train_ds = tokenized_datasets["train"].shuffle(seed=42).select(range(2000))
+    eval_ds = tokenized_datasets["test"].shuffle(seed=42).select(range(1000))
     training_args = TrainingArguments("test_trainer", evaluation_strategy="epoch")
 
     trainer = Trainer(
         model = model,
         args = training_args,
-        train_dataset = small_train_ds,
-        eval_dataset = small_eval_ds,
+        train_dataset = train_ds,
+        eval_dataset = eval_ds,
         compute_metrics = compute_metrics
     )
 
     trainer.train()
     trainer.evaluate()
-    trainer.save_model("/home/nate/cs_7180_proj3/out/")
+    trainer.save_model("/home/nate/cs_7180_proj3/out/dbert-rt-strlabels/")
     
 if __name__ == "__main__": 
     main()
