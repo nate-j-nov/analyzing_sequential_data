@@ -44,9 +44,20 @@ def main():
     dummy = DummyClassifier(strategy = "uniform")
     dummy.fit(train_data, train_labels)
     d_score = dummy.score(eval_data, eval_labels)
-
-    print(f"Dummy Score: {d_score}")
     
+    print(f"Dummy Score: {d_score}")
+
+    print("\nRunning Random Forest on first 100 dimensions...")
+    train_data = cls_np[:train_split, 1:101]
+    train_labels = cls_np[:train_split, 0] 
+
+    eval_data = cls_np[train_split:, 1:101]
+    eval_labels = cls_np[train_split:, 0] 
+
+    randfor.fit(train_data, train_labels)
+    rf_score_100 = randfor.score(eval_data, eval_labels)
+    print(f"Random forest on 100 dims: {rf_score_100}")
+
     print("Done")
     
     return

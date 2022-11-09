@@ -3,7 +3,6 @@
 # Fall 2022
 # Perform dimension reduction and clustering analyses on encoded sentence data 
 
-
 import numpy as np
 import pandas as pd
 import sklearn
@@ -26,24 +25,19 @@ def main():
     # PCA on all sentences - CLS vector only
     pca = sklearn.decomposition.PCA()
     pca.fit(vector)
-       
-    print(f"Num components: {pca.n_components_}")
-    print(f"First 30 axes variance: {pca.explained_variance_ratio_[:30]}")
-    test = np.array(pca.explained_variance_ratio_)[:20].sum()
-    print(f"Percent of variance in the first 20 axes: {test}")
 
     # apply PCA to transform the vector
     
     print("Running PCA...")
-    pca_transform = sklearn.decomposition.PCA(n_components=10)
+    pca_transform = sklearn.decomposition.PCA(n_components=100)
     vector_pca = pca_transform.fit_transform(vector)
 
     print(f"Num components: {pca_transform.n_components_}")
     print(f"First 10 axes variance: {pca_transform.explained_variance_ratio_[:10]}")
-    test2 = np.array(pca_transform.explained_variance_ratio_)[:10].sum()
-    print(f"Percent of variance in the first 10 axes: {test2}")
+    test2 = np.array(pca_transform.explained_variance_ratio_)[:100].sum()
+    print(f"Percent of variance in the first 100 axes: {test2}")
 
-    print("Conducting UMAP analysis on all dimensions...")
+    print("Conducting UMAP analysis on 100 dimensions...")
     reducer0 = umap.UMAP()
     embedding0 = reducer0.fit_transform(vector_pca)
 
@@ -60,11 +54,12 @@ def main():
         )
     plt.gca().set_aspect('equal', 'datalim')
     plt.setp(ax, xticks=[], yticks=[])
-    plt.title('UMAP projection of All Principal Components of the Encoded dataset', fontsize=18)
+    plt.title('UMAP projection of 100 Principal Components of the Encoded dataset', fontsize=18)
 
     plt.show()
 
-    plt.savefig("../out/umap_image_alldims.png")
+    plt.savefig("../out/umap_image_100dims.png")
+    plt.close()
 
     clustering = SpectralClustering(n_clusters=5, assign_labels='discretize', random_state=0).fit(vector_pca)
     clustering
@@ -86,7 +81,8 @@ def main():
 
     plt.show()
 
-    plt.savefig("../out/specClust.png")
+    plt.savefig("../out/specClust_100.png")
+    plt.close()
     
     reducer = umap.UMAP()
     embedding = reducer.fit_transform(vector)
@@ -106,10 +102,12 @@ def main():
         )
 
     plt.setp(ax, xticks=[], yticks=[])
-    plt.title('UMAP projection of the Encoded dataset', fontsize=18)
+    plt.title('UMAP Projection Encoded dataset', fontsize=18)
 
     plt.show()
 
+    plt.savefig("../out/umap_all.png")
+    plt.close()
 
 if __name__== "__main__": 
     main()
