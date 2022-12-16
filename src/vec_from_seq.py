@@ -21,7 +21,7 @@ def main():
     print("\nLoading and cleaning data...")
     rt = load_dataset('csv', delimiter='\t', data_files='../data/train.tsv', split='train')
 
-    # Reshape data so we only have full sentences from the rotton tomatoes dataset
+    # Reshape data so we only have full sentences from the rotten tomatoes dataset
     rt_df = pd.DataFrame(rt)
     new_col = rt_df[['SentenceId','PhraseId']].groupby(['SentenceId']).min('PhraseId')
     new  = rt_df.merge(new_col, on=['SentenceId'], how='left', suffixes=(None,'_r'))
