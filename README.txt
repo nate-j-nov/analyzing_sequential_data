@@ -3,6 +3,9 @@ CS7180: Advanced Computer Perception
 Project 3: Sequential Data
 
 Exploration and Analysis of Transformer Encoder Models
+src/ contains all relevant outputs and source code
+data/ contains training and testing data
+tuts/ contains code we used in following tutorials to understand HuggingFace API, encoder models, tokenization, etc.
 
 OS / IDE:
     MacOS / Vim
