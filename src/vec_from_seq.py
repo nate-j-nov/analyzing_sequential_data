@@ -1,119 +1,54 @@
 # Brenden Collins // Nate Novak
 # CS 7180: Advanced Computer Perception
 # Fall 2022
-# Program to extract the vector of audio sequence
+# Program to retrieve the encoded vector encoding for a given text sequence
 
 from transformers import pipeline
 from transformers import AutoTokenizer, AutoModel
-
 import numpy as np
 from datasets import load_dataset, load_metric
 import pandas as pd
-from sklearn.decomposition import PCA
 
+
+###########################################################
+# NOTE: due to the size of the transformer and data,      #
+#   we ran this in chunks of roughly 1000 rows at a time. #
+#   This kept the program from crashing. Hence the use    #
+#   of concat_csv.py                                      #
+###########################################################
 def main(): 
-
     # load dataset
-    rt = load_dataset('csv', data_files='../data/train.csv', split='train')
-    print(rt)
-    print(f"rt[0]: {rt[0]}")
+    print("\nLoading and cleaning data...")
+    rt = load_dataset('csv', delimiter='\t', data_files='../data/train.tsv', split='train')
 
-#### Toy example of tokenizer/model split on handmade sentences
-    checkpoint = "distilbert-base-uncased-finetuned-sst-2-english"
+    # Reshape data so we only have full sentences from the rotton tomatoes dataset
+    rt_df = pd.DataFrame(rt)
+    new_col = rt_df[['SentenceId','PhraseId']].groupby(['SentenceId']).min('PhraseId')
+    new  = rt_df.merge(new_col, on=['SentenceId'], how='left', suffixes=(None,'_r'))
+    rt_df = new.drop(new[new.PhraseId != new.PhraseId_r].index)
+    rt_df = rt_df.reset_index(drop=True)
+
+    rt_small = list(rt_df['Phrase'])[7000:]
+    
+    print("\nLoading model and checkpoint...")
+    checkpoint = "distilbert-base-uncased"
     tokenizer = AutoTokenizer.from_pretrained(checkpoint)
-
-    raw_inputs = [
-        "I feel like using HuggingFace is maybe too easy.",
-        "I also don't know what to use instead that will be feasible",
-        "NLP models are far too large to get good results without something pre-trained",
-        "Pizza is delicious!"
-    ]
-    inputs = tokenizer(raw_inputs, padding=True, truncation=True, return_tensors="pt")
-    print(inputs)
-
+    inputs = tokenizer(rt_small, padding=True, truncation=True, return_tensors="pt")
+    
+    print("\nRunning data through pretrained model...")
     model = AutoModel.from_pretrained(checkpoint)
     outputs = model(**inputs)
-    print(outputs.last_hidden_state.shape)
 
+    cls_out_np = outputs.last_hidden_state.detach().numpy()[:,0,:]
 
-#    outputs_np = outputs.last_hidden_state.detach().numpy()
-#    print(outputs_np)
-#    out_shape = outputs_np.shape
-#    print(out_shape)
-#    outputs_np = outputs_np.reshape(out_shape[0], out_shape[1]*out_shape[2])
-#    print(outputs_np.shape)
-
-
-
-
-##### Use pandas to checkout model output against ground truth
-#    pd_data = pd.DataFrame(rot_tom)
-#    print(f"pd_data.head {pd_data.head()}")
-#
-#    pd_data[["model_out", "model_score"]] = pd.DataFrame([x for x in model(list(pd_data["text"]))])
-#    d = {'POSITIVE':1, 'NEGATIVE': 0}
-#    pd_data['model_out'] = pd_data['model_out'].map(d)
-#
-#    grouped = pd_data.groupby(["label", "model_out"]).count()
-#    print(f"{grouped}")
-
-##########
-### Test np reshape because I always forget how it works
-##########
-#    test = np.zeros((2,3,4))
-#    test[0,1,:] = 1
-#    test[0,2,:] = 2
-#    test[1,0,:] = 3
-#    test[1,1,:] = 4
-#    test[1,2,:] = 5
-#    print(test)
-#    print(test.shape)
-#
-#    test2 = test.reshape((2,12))
-#    print(test2)
-
-#########
-# Play with a single sentence encoding
-#########
-#    a = outputs_np[0,:,:]
-#    print(a.shape)
-#    print(f"a: {a}")
-#
-#    pca = PCA()
-#    pca.fit(a.T)
-#    print(f"Num components: {pca.n_components_}")
-#    print(pca.explained_variance_ratio_)
-#    print(pca.singular_values_)
-
-    
-    # See: https://huggingface.co/blog/fine-tune-wav2vec2-english
-    # See also: https://huggingface.co/course/chapter2/2?fw=pt
+    # write hidden state parameters to file
+    print("\nWriting hidden state parameters to file...")
+    encoded_df = pd.concat([rt_df[['PhraseId','SentenceId','Phrase','Sentiment']][7000:].reset_index(drop=True), pd.DataFrame(cls_out_np)], axis=1)
+    print(encoded_df)
+    encoded_df.to_csv("../data/encoded_rt.csv")
      
     return
 
 if __name__ == "__main__": 
     main()
 
-
-#sentences = [ 
-#    "I quite happy, but mourning my mother's death", 
-#    "I'm so happy my brother died", 
-#    "My brother died after a long hard battle with cancer, and I'm kind of thrilled he suffered until the bitter end",
-#    "hjksadf klj asdkl; weoi[rj hfd",
-#    "aaaaaaaaaa ooooo uuuuuiiiiiii oooooo iiiiiiiiiiiI",
-#    "AHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH", 
-#    "IIIIIIIIIIIIIIIIIIIIIIIIIII", 
-#    "yyeooourya hdgagej alagejja gakuuuq scbnns ooiuthw ahdeg",
-#    "loiiaiuivhea ha keoah lower haheaee libuea ahehch?",
-#    "hahahahahahahahaha"
-#    ]
-
-
-
-#    rot_tom = load_dataset("rotten_tomatoes", split="train")
-#    print(rot_tom.info)
-#    print(f"rot_tom: {rot_tom}")
-#    print(f"rot_tom[0]: {rot_tom[0]}")
-#    model = pipeline('sentiment-analysis')
-#    outputs = model(rot_tom["text"][:30])
-#    print(outputs)
