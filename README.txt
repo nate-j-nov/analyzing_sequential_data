@@ -13,7 +13,8 @@ OS / IDE:
     Ubuntu 22.04 / Vim
 
 Instructions on Running: 
-    from the 'src' folder: 
+    Make an 'out/' folder in the project directory
+    From the 'src' folder: 
         To create data:
             python3 vec_from_seq.py -> Runs the data through the selected transformer encoder, creating a csv file of the encodings. Ran multiple times to put the data into chuncks
               - NOTE: each output 'encoded_rt.csv' file had a suffix manually appended
